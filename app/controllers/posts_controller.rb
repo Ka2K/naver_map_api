@@ -68,11 +68,18 @@ class PostsController < ApplicationController
   def map_data
     max = JSON.parse(params[:max])
     min = JSON.parse(params[:min]) # JSON string을 rails에서 hash 처럼 쓸 수 있게 해줌
-    @school = School.where("(lat BETWEEN ? and ?) and (lng BETWEEN ? and ?)", min["_lat"], max["_lat"], min["_lng"], max["_lng"])
-
+    indices = JSON.parse(params[:indices]) # naver map에 이미 로딩되어 있는 학교들의 id
+    school = School.where("(lat BETWEEN ? and ?) and (lng BETWEEN ? and ?)", min["_lat"], max["_lat"], min["_lng"], max["_lng"])
+    school_id = school.map{|x| x.id}
+    school_id -= indices # 이제 school_id에는 기존 naver map에 로딩되어 있지 않은 학교들의 id만 남아있음.
+    if school_id.length == 0
+      school = []
+    else
+      school = school.select{|x| school_id.include? x.id}# school_id에 존재하는 학교들만 school에 저장
+    end
     # @school = School.all.limit(1000)
     respond_to do |format|
-      format.json {render json: @school}
+      format.json {render json: [school, school_id]}
     end
   end
 

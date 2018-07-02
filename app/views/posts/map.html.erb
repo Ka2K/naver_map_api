@@ -20,6 +20,7 @@ var cityhall = new naver.maps.LatLng(37.5666805, 126.9784147);
 var data;
 var markers = [];
 var infoWindows = [];
+var indices = [];
 
 map.setCenter(cityhall); // 중심 좌표 이동
 map.setZoom(13);     // 줌 레벨 변경
@@ -36,9 +37,11 @@ function getData() {
     dataType: 'Json',
     data: {max:JSON.stringify(max),
            min:JSON.stringify(min), // string 형식으로 받아야 함.
-           authenticity_token: $('[name="csrf=token"]').attr('content')},
+           authenticity_token: $('[name="csrf=token"]').attr('content'),
+           indices: JSON.stringify(indices)},
       success: function(result) {
-      data = result;
+      data = result[0]; // 새로 로딩된 학교들의 data. 즉 기존에는 없던 학교들만 있음.
+      indices = indices.concat(result[1]); // 새로 로딩된 학교들의 id
       alert("success");
       console.log(data);
       createElements();
@@ -55,6 +58,8 @@ function getData() {
 
 function createElements() {
   alert("create!");
+  var new_markers = [];
+  var new_infoWindows = [];
   for(var i = 0; i < data.length; i++) {
     var school = data[i];
 
@@ -80,17 +85,20 @@ function createElements() {
     var infowindow = new N.InfoWindow({
         content: contentString
     });
+    new_markers.push(marker);
+    new_infoWindows.push(infowindow);
+
     markers.push(marker);
     infoWindows.push(infowindow);
   }
-  addEvents();
+  addEvents(new_markers, new_infoWindows);
 }
 
 
 function getClickHandler(seq) {
   return function(e) {
-      var marker = markers[seq],
-          infoWindow = infoWindows[seq];
+      var marker = new_markers[seq],
+          infoWindow = new_infoWindows[seq];
 
       if (infoWindow.getMap()) { //정보가 맵에 표시되어 있는지
           infoWindow.close();
@@ -100,10 +108,10 @@ function getClickHandler(seq) {
   }
 }
 
-function addEvents(){
+function addEvents(new_markers, new_infoWindows){
   alert("event!");
-  for (var i=0, ii=markers.length; i<ii; i++) {
-    N.Event.addListener(markers[i], 'click', getClickHandler(i));
+  for (var i=0, ii=new_markers.length; i<ii; i++) {
+    N.Event.addListener(new_markers[i], 'click', getClickHandler(new_markers, new_infoWindows));
   }
   updateMarkers(map, markers);
 }
