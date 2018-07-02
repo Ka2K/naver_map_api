@@ -63,9 +63,18 @@ class PostsController < ApplicationController
   end
 
   def map
-
   end
 
+  def map_data
+    max = JSON.parse(params[:max])
+    min = JSON.parse(params[:min]) # JSON string을 rails에서 hash 처럼 쓸 수 있게 해줌
+    @school = School.where("(lat BETWEEN ? and ?) and (lng BETWEEN ? and ?)", min["_lat"], max["_lat"], min["_lng"], max["_lng"])
+
+    # @school = School.all.limit(1000)
+    respond_to do |format|
+      format.json {render json: @school}
+    end
+  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
