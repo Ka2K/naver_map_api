@@ -42,7 +42,7 @@ function getData() {
       success: function(result) {
       data = result[0]; // 새로 로딩된 학교들의 data. 즉 기존에는 없던 학교들만 있음.
       indices = indices.concat(result[1]); // 새로 로딩된 학교들의 id
-      alert("success");
+      // alert("success");
       console.log(data);
       createElements();
     }
@@ -57,7 +57,7 @@ function getData() {
 // ];
 
 function createElements() {
-  alert("create!");
+  // alert("create!");
   var new_markers = [];
   var new_infoWindows = [];
   for(var i = 0; i < data.length; i++) {
@@ -89,7 +89,7 @@ function createElements() {
     new_infoWindows.push(infowindow);
 
     markers.push(marker);
-    infoWindows.push(infowindow);
+    // infoWindows.push(infowindow); => 각 marker들에 각 infowindow에 대한 정보를 담고 있으므로 모든 infowindows를 가지고 있을 필요는 없다.
   }
   addEvents(new_markers, new_infoWindows);
 }
@@ -109,7 +109,7 @@ function getClickHandler(seq) {
 }
 
 function addEvents(new_markers, new_infoWindows){
-  alert("event!");
+  // alert("event!");
   for (var i=0, ii=new_markers.length; i<ii; i++) {
     N.Event.addListener(new_markers[i], 'click', getClickHandler(new_markers, new_infoWindows));
   }
